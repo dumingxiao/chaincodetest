@@ -165,7 +165,7 @@ func (t *SimpleChaincode) Verify(stub shim.ChaincodeStubInterface, args []string
 	}
 
 	// verify
-	if password == accountTest {
+	if password == string(accountTest) {
 		return ver, nil
 
 	} else {
