@@ -148,6 +148,34 @@ func (t *SimpleChaincode) Reset(stub shim.ChaincodeStubInterface, args []string)
 	return nil, nil
 }
 
+func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	//account := args[0]
+	// Handle different functions
+	//password, err := stub.GetState(account) //get the var from chaincode state
+
+	if function == "test" { //add a new Administrator account
+		return t.Test(stub, args)
+	} else if function == "verify" { //deletes an account from its state
+		return t.Verify(stub, args)
+	}
+
+	return nil, errors.New("failed to query")
+
+}
+
+func (t *SimpleChaincode) Test(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	//fmt.Println("query is running " + function)
+	account := args[0]
+	// Handle different functions
+	password, err := stub.GetState(account) //get the var from chaincode state
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + account + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	return password, nil
+}
+
 func (t *SimpleChaincode) Verify(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if len(args) != 2 {
 		return nil, errors.New("Incorrect number of arguments. ")
@@ -172,19 +200,6 @@ func (t *SimpleChaincode) Verify(stub shim.ChaincodeStubInterface, args []string
 		return nil, errors.New("Failed to verify the account")
 	}
 
-}
-
-func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	fmt.Println("query is running " + function)
-	account := args[0]
-	// Handle different functions
-	password, err := stub.GetState(account) //get the var from chaincode state
-	if err != nil {
-		jsonResp := "{\"Error\":\"Failed to get state for " + account + "\"}"
-		return nil, errors.New(jsonResp)
-	}
-
-	return password, nil
 }
 
 func main() {
