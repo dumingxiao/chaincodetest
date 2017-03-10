@@ -66,14 +66,14 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 	}
 	account := args[0]
 	code := args[1]
-	accountTest, err := stub.GetState(account)
+	//accountTest, err := stub.GetState(account)
 
 	//test if the account has been existed
-	if accountTest != nil {
-		return nil, errors.New("the ccount is existed")
-	}
+	// if accountTest != nil {
+	// 	return nil, errors.New("the ccount is existed")
+	// }
 	// add the account
-	err = stub.PutState(account, []byte(code))
+	err := stub.PutState(account, []byte(code))
 	if err != nil {
 		return nil, errors.New("Failed to add the account")
 	}
@@ -105,8 +105,8 @@ func (t *SimpleChaincode) P2Verify(stub shim.ChaincodeStubInterface, args []stri
 		return nil, errors.New("patient's code is error")
 	}
 
-	// reset the account's password
-	err = stub.PutState(p1, []byte(p2))
+	//
+	err = stub.PutState(p1, []byte("used code"))
 	if err != nil {
 		return nil, errors.New("Failed to store the verification record")
 	}
@@ -139,7 +139,8 @@ func (t *SimpleChaincode) P3Verify(stub shim.ChaincodeStubInterface, args []stri
 	}
 
 	// reset the account's password
-	err = stub.PutState(p1, []byte(p3))
+	err = stub.PutState(p1, []byte("used code"))
+	err = stub.PutState(p3, []byte(p1))
 	if err != nil {
 		return nil, errors.New("Failed to store the verification record")
 	}
@@ -152,13 +153,71 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 	// Handle different functions
 	//password, err := stub.GetState(account) //get the var from chaincode state
 
+	if function == "verify" {
+		if len(args) == 4 { //verify the request of the  hespital
+			return t.P2VerifyQuery(stub, args)
+		} else if len(args) == 5 { //verify the request of the  celeres
+			return t.P3VerifyQuery(stub, args)
+		}
+	}
 	if function == "test" { //add a new Administrator account
 		return t.Test(stub, args)
-	} else if function == "verify" { //deletes an account from its state
-		return t.Verify(stub, args)
 	}
 
 	return nil, errors.New("failed to query")
+
+}
+
+func (t *SimpleChaincode) P2VerifyQuery(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+
+	p2 := args[0] //hospital
+	p2Code := args[1]
+	p1 := args[2] //patient
+	p1Code := args[3]
+	p2Test, err := stub.GetState(p2)
+	p1Test, errs := stub.GetState(p1)
+	//test if the account has been existed
+	if err != nil {
+		return nil, errors.New("error in reading hospital's code")
+	}
+	if errs != nil {
+		return nil, errors.New("error in reading patient's code")
+	}
+	if p2Code != string(p2Test) {
+		return nil, errors.New("hospital's code is error")
+	} else if p1Code != string(p1Test) {
+		return nil, errors.New("patient's code is error")
+	}
+
+	return []byte("ok"), nil
+
+}
+
+// 医疗分析机构请求获取病人的病例数据，
+//发送 医疗分析机构编号 || 医院编号 || 医院授权码 || 病人编号 ||病人授权码
+func (t *SimpleChaincode) P3VerifyQuery(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	//p3 := args[0]
+	p2 := args[1]
+	p2Code := args[2]
+	p1 := args[3]
+	p1Code := args[4]
+	p2Test, err := stub.GetState(p2)
+	p1Test, errs := stub.GetState(p1)
+	//test if the account has been existed
+	if err != nil {
+		return nil, errors.New("error in reading hospital's code")
+	}
+	if errs != nil {
+		return nil, errors.New("error in reading patient's code")
+	}
+
+	if p2Code != string(p2Test) {
+		return nil, errors.New("hospital's code is error")
+	} else if p1Code != string(p1Test) {
+		return nil, errors.New("patient's code is error")
+	}
+
+	return []byte("ok"), nil
 
 }
 
@@ -174,32 +233,6 @@ func (t *SimpleChaincode) Test(stub shim.ChaincodeStubInterface, args []string) 
 
 	return password, nil
 }
-
-// func (t *SimpleChaincode) Verify(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-// 	if len(args) != 2 {
-// 		return nil, errors.New("Incorrect number of arguments. ")
-// 	}
-// 	account := args[0]
-// 	password := args[1]
-// 	accountTest, err := stub.GetState(account)
-// 	ver := []byte("ok")
-// 	//test if the account has been existed
-// 	if err != nil {
-// 		return nil, errors.New("account not found")
-// 	}
-// 	if accountTest == nil {
-// 		return nil, errors.New("account not found")
-// 	}
-
-// 	// verify
-// 	if password == string(accountTest) {
-// 		return ver, nil
-
-// 	} else {
-// 		return nil, errors.New("Failed to verify the account")
-// 	}
-
-// }
 
 func main() {
 	err := shim.Start(new(SimpleChaincode))
