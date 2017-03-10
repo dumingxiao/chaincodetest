@@ -97,7 +97,9 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 	return nil, nil
 }
 
-//change the account's password
+// change the account's password
+// 3 input parameters
+// "account","old password","new password"
 func (t *SimpleChaincode) Edit(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if len(args) != 3 {
 		return nil, errors.New("Incorrect number of arguments. ")
