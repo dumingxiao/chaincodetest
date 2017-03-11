@@ -93,10 +93,10 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
 	if function == "verify" { //deletes an account from its state
-		if len(args) == 2 {
-			return t.VerifyRecordHash(stub, args)
-		} else if len(args) == 1 {
+		if len(args) == 1 {
 			return t.Get(stub, args)
+		} else if len(args) == 2 {
+			return t.VerifyRecordHash(stub, args)
 
 		}
 	}
@@ -112,6 +112,8 @@ func (t *SimpleChaincode) VerifyRecordHash(stub shim.ChaincodeStubInterface, arg
 	recordID := args[0]
 	recordHash := args[1]
 	recordTest, err := stub.GetState(recordID)
+	var JsonRecordTest RecordDetail
+	json.Unmarshal(recordTest, &JsonRecordTest)
 	ver := []byte("ok")
 	jsonResp := "{\"Error\":\"Failed to get state for " + recordID + "\"}"
 	//test if the account has been existed
@@ -123,7 +125,7 @@ func (t *SimpleChaincode) VerifyRecordHash(stub shim.ChaincodeStubInterface, arg
 	}
 
 	// verify
-	if recordHash == string(recordTest) {
+	if recordHash == string(JsonRecordTest.RecordHash) {
 		return ver, nil
 
 	} else {
