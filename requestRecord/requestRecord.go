@@ -18,13 +18,13 @@ import (
 type SimpleChaincode struct {
 }
 
-type RequestState struct {
-	CeleresID  string `json:"celeresID"`  //user who created the open trade order
-	HospitalID string `json:"hospitalID"` //utc timestamp of creation
-	Hcode      string `json:"hcode"`      //description of desired marble
-	PatientID  string `json:"patientID"`
-	Pcode      string `json:"pcode"` //array of marbles willing to trade away
-}
+// type RequestState struct {
+// 	CeleresID  string `json:"celeresID"`  //user who created the open trade order
+// 	HospitalID string `json:"hospitalID"` //utc timestamp of creation
+// 	Hcode      string `json:"hcode"`      //description of desired marble
+// 	PatientID  string `json:"patientID"`
+// 	Pcode      string `json:"pcode"` //array of marbles willing to trade away
+// }
 
 // the Init function is used for deploying the chaincode and setting the Administrator account
 
@@ -67,14 +67,21 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 		return nil, errors.New("Incorrect number of arguments. ")
 	}
 	requestID := args[0]
-	var requestState RequestState
-	requestState.CeleresID = args[1]
-	requestState.HospitalID = args[2]
-	requestState.Hcode = args[3]
-	requestState.PatientID = args[4]
-	requestState.Pcode = args[5]
-	JsonRequestState, _ := json.Marshal(requestState)
+	// var requestState RequestState
+	// requestState.CeleresID = args[1]
+	// requestState.HospitalID = args[2]
+	// requestState.Hcode = args[3]
+	// requestState.PatientID = args[4]
+	// requestState.Pcode = args[5]
+	// JsonRequestState, _ := json.Marshal(requestState)
 
+	var requestState []string
+	requestState[0] = args[1]
+	requestState[1] = args[2]
+	requestState[2] = args[3]
+	requestState[3] = args[4]
+	requestState[4] = args[5]
+	JsonRequestState, _ := json.Marshal(requestState)
 	//accountTest, err := stub.GetState(account)
 
 	//test if the account has been existed
