@@ -172,7 +172,7 @@ func (t *SimpleChaincode) Reset(stub shim.ChaincodeStubInterface, args []string)
 }
 
 // ============================================================================================================================
-// Query function is the entry point for Querying
+// Query function is the entry point for Queries
 // ============================================================================================================================
 func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
