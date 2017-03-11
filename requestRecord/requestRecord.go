@@ -1,8 +1,11 @@
-/*
-This Chaincode stores the accounts and passwords
-
-*/
-
+// ============================================================================================================================
+// This smart contract is used for managing the accounts
+// It includes adding an account ,deleting an account,changing an
+// account's password and verifying the account's password
+// ============================================================================================================================
+// 本智能合约用于存储医院和医疗分析机构对病人病历的申请状态
+// 功能包括：添加记录查询状态
+// ============================================================================================================================
 package main
 
 import (
@@ -19,15 +22,16 @@ type SimpleChaincode struct {
 }
 
 type RequestState struct {
-	CeleresID  string `json:"celeresID"`  //user who created the open trade order
-	HospitalID string `json:"hospitalID"` //utc timestamp of creation
-	Hcode      string `json:"hcode"`      //description of desired marble
-	PatientID  string `json:"patientID"`
-	Pcode      string `json:"pcode"` //array of marbles willing to trade away
+	CeleresID  string `json:"celeresID"`  //user who requested for the medical record
+	HospitalID string `json:"hospitalID"` //the ID of the hospital which stores this medical record
+	Hcode      string `json:"hcode"`      //the authorization code of the hospital
+	PatientID  string `json:"patientID"`  // the ID of the patient who owns the medical record
+	Pcode      string `json:"pcode"`      //the authorization code of the patient
 }
 
+// ============================================================================================================================
 // the Init function is used for deploying the chaincode and setting the Administrator account
-
+// ============================================================================================================================
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	var ID string    // Administrator's ID
 	var IDval string // Password of the Administrator ID
@@ -49,12 +53,14 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	return nil, nil
 }
 
+// ============================================================================================================================
+// Invoke function is the entry point for Invocations
+// ============================================================================================================================
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
-	// Handle different functions
-	if function == "init" { //add a new Administrator account
+	if function == "init" {
 		return t.Init(stub, "init", args)
-	} else if function == "add" { //add a new account
+	} else if function == "add" {
 		return t.Add(stub, args)
 	}
 
@@ -75,19 +81,6 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 	requestState.Pcode = args[5]
 	JsonRequestState, _ := json.Marshal(requestState)
 
-	// var requestState []string
-	// requestState[0] = args[1]
-	// requestState[1] = args[2]
-	// requestState[2] = args[3]
-	// requestState[3] = args[4]
-	// requestState[4] = args[5]
-	// JsonRequestState, _ := json.Marshal(requestState)
-	//accountTest, err := stub.GetState(account)
-
-	//test if the account has been existed
-	// if accountTest != nil {
-	// 	return nil, errors.New("the ccount is existed")
-	// }
 	// add the account
 	err := stub.PutState(requestID, JsonRequestState)
 	if err != nil {
@@ -115,12 +108,17 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 }
 
+// ============================================================================================================================
+// VerifyQuery function is used for replying the state of the medical record request
+// 1 input
+// "requestID"
+// ============================================================================================================================
 func (t *SimpleChaincode) VerifyQuery(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. ")
 	}
-	celeres := args[0]
-	result, err := stub.GetState(celeres)
+	requestID := args[0]
+	result, err := stub.GetState(requestID)
 	//test if the account has been existed
 	if err != nil {
 		return nil, errors.New("error in reading request record")
