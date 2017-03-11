@@ -17,7 +17,9 @@ import (
 type SimpleChaincode struct {
 }
 
-// the Init function is used for deploying the chaincode and setting the Administrator account
+// ============================================================================================================================
+// Init function is used for creating the Administrator account
+// ============================================================================================================================
 
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	var ID string    // Administrator's ID
@@ -40,6 +42,9 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	return nil, nil
 }
 
+// ============================================================================================================================
+// Invoke function is the entry point for Invocations
+// ============================================================================================================================
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
 	// Handle different functions
@@ -58,7 +63,11 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	return nil, errors.New("Received unknown function invocation")
 }
 
-//add an new Authorization code
+// ============================================================================================================================
+// Add function is used for adding an new Authorization code
+// 2 input
+// "account","authorization code"
+// ============================================================================================================================
 func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if len(args) != 2 {
 		return nil, errors.New("Incorrect number of arguments. ")
@@ -66,7 +75,6 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 	account := args[0]
 	code := args[1]
 
-	// add the account
 	err := stub.PutState(account, []byte(code))
 	if err != nil {
 		return nil, errors.New("Failed to add the account")
@@ -74,9 +82,6 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 
 	return nil, nil
 }
-
-// 医院请求获取病人的病例数据
-//发送 医院编号|| 医院授权码 || 病人编号 ||病人授权码
 
 func (t *SimpleChaincode) P2Verify(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
@@ -87,8 +92,6 @@ func (t *SimpleChaincode) P2Verify(stub shim.ChaincodeStubInterface, args []stri
 
 }
 
-// 医疗分析机构请求获取病人的病例数据，
-//发送 医疗分析机构编号 || 医院编号 || 医院授权码 || 病人编号 ||病人授权码
 func (t *SimpleChaincode) P3Verify(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	////make sure the authorization code only can be used once
@@ -98,6 +101,9 @@ func (t *SimpleChaincode) P3Verify(stub shim.ChaincodeStubInterface, args []stri
 
 }
 
+// ============================================================================================================================
+// Query function is the entry point for Queries
+// ============================================================================================================================
 func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	//account := args[0]
 	// Handle different functions
@@ -118,6 +124,11 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 }
 
+// ============================================================================================================================
+// P2VerifyQuery function is used for verifying the hospital's authorization code and the patient's authorization code
+// 4 input
+// "hospitalID","hospital authorization code","patientID","patient authorization code",
+// ============================================================================================================================
 func (t *SimpleChaincode) P2VerifyQuery(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	p2 := args[0] //hospital
@@ -145,6 +156,11 @@ func (t *SimpleChaincode) P2VerifyQuery(stub shim.ChaincodeStubInterface, args [
 
 // 医疗分析机构请求获取病人的病例数据，
 //发送 医疗分析机构编号 || 医院编号 || 医院授权码 || 病人编号 ||病人授权码
+// ============================================================================================================================
+// P2VerifyQuery function is used for verifying the hospital's authorization code and the patient's authorization code
+// 5 input
+// "requester ID","hospitalID","hospital authorization code","patientID","patient authorization code",
+// ============================================================================================================================
 func (t *SimpleChaincode) P3VerifyQuery(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	//p3 := args[0]
 	p2 := args[1]
