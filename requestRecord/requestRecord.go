@@ -63,7 +63,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 
 //add an new Authorization code
 func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	if len(args) != 5 {
+	if len(args) != 6 {
 		return nil, errors.New("Incorrect number of arguments. ")
 	}
 	requestID := args[0]
