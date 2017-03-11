@@ -37,7 +37,6 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	if err != nil {
 		return nil, err
 	}
-	ac
 	return nil, nil
 }
 
