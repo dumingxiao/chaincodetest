@@ -67,7 +67,11 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	return nil, errors.New("Received unknown function invocation")
 }
 
-//add an new Authorization code
+// ============================================================================================================================
+// Add function is used for add an new request record
+// 6 input
+// "requestID","requester","hospitalID","hospital authorization code","patient","hpatient authorization code"
+// ============================================================================================================================
 func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if len(args) != 6 {
 		return nil, errors.New("Incorrect number of arguments. ")
@@ -90,9 +94,9 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 	return nil, nil
 }
 
-// 医院请求获取病人的病例数据
-//发送 医院编号|| 医院授权码 || 病人编号 ||病人授权码
-
+// ============================================================================================================================
+// Query function is the entry point for Queries
+// ============================================================================================================================
 func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	//account := args[0]
 	// Handle different functions
