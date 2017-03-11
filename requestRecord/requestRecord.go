@@ -73,7 +73,7 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 	requestState.Hcode = args[3]
 	requestState.PatientID = args[4]
 	requestState.Pcode = args[5]
-	JsonRequestID, _ := json.Marshal(requestState)
+	JsonRequestState, _ := json.Marshal(requestState)
 
 	//accountTest, err := stub.GetState(account)
 
@@ -82,7 +82,7 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 	// 	return nil, errors.New("the ccount is existed")
 	// }
 	// add the account
-	err := stub.PutState(requestID, JsonRequestID)
+	err := stub.PutState(requestID, JsonRequestState)
 	if err != nil {
 		return nil, errors.New("Failed to add the account")
 	}
