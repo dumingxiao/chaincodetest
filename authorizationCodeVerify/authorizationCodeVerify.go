@@ -65,12 +65,7 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 	}
 	account := args[0]
 	code := args[1]
-	//accountTest, err := stub.GetState(account)
 
-	//test if the account has been existed
-	// if accountTest != nil {
-	// 	return nil, errors.New("the ccount is existed")
-	// }
 	// add the account
 	err := stub.PutState(account, []byte(code))
 	if err != nil {
@@ -85,65 +80,21 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 
 func (t *SimpleChaincode) P2Verify(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
-	p2 := args[0] //hospital
-	p2Code := args[1]
-	p1 := args[2] //patient
-	p1Code := args[3]
-	p2Test, err := stub.GetState(p2)
-	p1Test, errs := stub.GetState(p1)
-	//test if the account has been existed
-	if err != nil {
-		return nil, errors.New("error in reading hospital's code")
-	}
-	if errs != nil {
-		return nil, errors.New("error in reading patient's code")
-	}
-	if p2Code != string(p2Test) {
-		return nil, errors.New("hospital's code is error")
-	} else if p1Code != string(p1Test) {
-		return nil, errors.New("patient's code is error")
-	}
+	////make sure the authorization code only can be used once
+	//err = stub.PutState(p1, []byte("used code"))
 
-	//
-	err = stub.PutState(p1, []byte("used code"))
-	if err != nil {
-		return nil, errors.New("Failed to store the verification record")
-	}
-	return []byte("ok"), nil
+	return nil, nil
 
 }
 
 // 医疗分析机构请求获取病人的病例数据，
 //发送 医疗分析机构编号 || 医院编号 || 医院授权码 || 病人编号 ||病人授权码
 func (t *SimpleChaincode) P3Verify(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	p3 := args[0]
-	p2 := args[1]
-	p2Code := args[2]
-	p1 := args[3]
-	p1Code := args[4]
-	p2Test, err := stub.GetState(p2)
-	p1Test, errs := stub.GetState(p1)
-	//test if the account has been existed
-	if err != nil {
-		return nil, errors.New("error in reading hospital's code")
-	}
-	if errs != nil {
-		return nil, errors.New("error in reading patient's code")
-	}
 
-	if p2Code != string(p2Test) {
-		return nil, errors.New("hospital's code is error")
-	} else if p1Code != string(p1Test) {
-		return nil, errors.New("patient's code is error")
-	}
+	////make sure the authorization code only can be used once
+	//err = stub.PutState(p1, []byte("used code"))
 
-	// reset the account's password
-	err = stub.PutState(p1, []byte("used code"))
-	err = stub.PutState(p3, []byte(p1))
-	if err != nil {
-		return nil, errors.New("Failed to store the verification record")
-	}
-	return []byte("ok"), nil
+	return nil, nil
 
 }
 
@@ -224,13 +175,13 @@ func (t *SimpleChaincode) Test(stub shim.ChaincodeStubInterface, args []string) 
 	//fmt.Println("query is running " + function)
 	account := args[0]
 	// Handle different functions
-	password, err := stub.GetState(account) //get the var from chaincode state
+	code, err := stub.GetState(account) //get the var from chaincode state
 	if err != nil {
 		jsonResp := "{\"Error\":\"Failed to get state for " + account + "\"}"
 		return nil, errors.New(jsonResp)
 	}
 
-	return password, nil
+	return code, nil
 }
 
 func main() {
