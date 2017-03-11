@@ -1,23 +1,26 @@
-/*
-This Chaincode stores the accounts and passwords
-
-*/
+// ============================================================================================================================
+// This smart contract is used for managing the accounts
+// It includes adding an account ,deleting an account,changing an
+// account's password and verifying the account's password
+// ============================================================================================================================
+// 本智能合约用于用户账户管理
+// 功能包括：增加账号 删除账号 修改管理账号 对登录账号进行密码验证
+// ============================================================================================================================
 
 package main
 
 import (
 	"errors"
 	"fmt"
-	//"strconv"
-
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
-// SimpleChaincode example simple Chaincode implementation
 type SimpleChaincode struct {
 }
 
-// the Init function is used for deploying the chaincode and setting the Administrator account
+// ============================================================================================================================
+// Init function is used for creating the Administrator account
+// ============================================================================================================================
 
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	var ID string    // Administrator's ID
@@ -41,6 +44,9 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	return nil, nil
 }
 
+// ============================================================================================================================
+// Invoke function is the entry point for Invocations
+// ============================================================================================================================
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
 	// Handle different functions
@@ -61,7 +67,11 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	return nil, errors.New("Received unknown function invocation")
 }
 
-// delete an account
+// ============================================================================================================================
+// Delete function is used for deleting an account
+// 1 input
+// "account"
+// ============================================================================================================================
 func (t *SimpleChaincode) Delete(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. ")
@@ -75,7 +85,11 @@ func (t *SimpleChaincode) Delete(stub shim.ChaincodeStubInterface, args []string
 	return nil, nil
 }
 
-//add an new account
+// ============================================================================================================================
+// Add function is used for adding a new accounts
+// 2 input
+// "account","password"
+// ============================================================================================================================
 func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if len(args) != 2 {
 		return nil, errors.New("Incorrect number of arguments. ")
@@ -97,9 +111,11 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 	return nil, nil
 }
 
-// change the account's password
-// 3 input parameters
+// ============================================================================================================================
+// Edit function is used for changing the account's password
+// 3 input
 // "account","old password","new password"
+// ============================================================================================================================
 func (t *SimpleChaincode) Edit(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if len(args) != 3 {
 		return nil, errors.New("Incorrect number of arguments. ")
@@ -125,6 +141,11 @@ func (t *SimpleChaincode) Edit(stub shim.ChaincodeStubInterface, args []string) 
 	return nil, nil
 }
 
+// ============================================================================================================================
+// Reset function is used for resetting the account's password in case of forgetting the password
+// 1 input
+// "account"
+// ============================================================================================================================
 func (t *SimpleChaincode) Reset(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. ")
@@ -150,34 +171,28 @@ func (t *SimpleChaincode) Reset(stub shim.ChaincodeStubInterface, args []string)
 	return nil, nil
 }
 
+// ============================================================================================================================
+// Query function is the entry point for Querying
+// ============================================================================================================================
 func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	//account := args[0]
-	// Handle different functions
-	//password, err := stub.GetState(account) //get the var from chaincode state
 
-	if function == "test" { //add a new Administrator account
-		return t.Test(stub, args)
-	} else if function == "verify" { //deletes an account from its state
+	if function == "verify" { // verify the passwprd
 		return t.Verify(stub, args)
+	} else if function == "ifAccountExisted" { // reply if the account is existed
+		return t.IfAccountExisted(stub, args)
+	} else if function == "test" { //a function for testing
+		return t.Test(stub, args)
 	}
 
 	return nil, errors.New("failed to query")
 
 }
 
-func (t *SimpleChaincode) Test(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	//fmt.Println("query is running " + function)
-	account := args[0]
-	// Handle different functions
-	password, err := stub.GetState(account) //get the var from chaincode state
-	if err != nil {
-		jsonResp := "{\"Error\":\"Failed to get state for " + account + "\"}"
-		return nil, errors.New(jsonResp)
-	}
-
-	return password, nil
-}
-
+// ============================================================================================================================
+// Reset function is used for verifying the password,if the password is correct,there will be a reply of "ok".
+// 2 input
+// "account","password"
+// ============================================================================================================================
 func (t *SimpleChaincode) Verify(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if len(args) != 2 {
 		return nil, errors.New("Incorrect number of arguments. ")
@@ -199,9 +214,40 @@ func (t *SimpleChaincode) Verify(stub shim.ChaincodeStubInterface, args []string
 		return ver, nil
 
 	} else {
-		return nil, errors.New("Failed to verify the account")
+		return nil, errors.New("The password is not correct")
 	}
 
+}
+
+// ============================================================================================================================
+// Reset function is used for making sure the existing of the account ,if the account is existed,there will be a reply of "ok".
+// 2 input
+// "account","password"
+// ============================================================================================================================
+func (t *SimpleChaincode) IfAccountExisted(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	if len(args) != 1 {
+		return nil, errors.New("Incorrect number of arguments. ")
+	}
+	account := args[0]
+	// Handle different functions
+	_, err := stub.GetState(account) //get the var from chaincode state
+	if err != nil {
+		return nil, errors.New("account not found")
+	}
+
+	return []byte("ok"), nil
+}
+
+func (t *SimpleChaincode) Test(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	account := args[0]
+	// Handle different functions
+	password, err := stub.GetState(account) //get the var from chaincode state
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + account + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	return password, nil
 }
 
 func main() {
