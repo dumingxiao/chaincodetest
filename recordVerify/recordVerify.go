@@ -35,12 +35,8 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	if len(args) != 2 {
 		return nil, errors.New("Incorrect number of arguments. ")
 	}
-
-	// Initialize the chaincode
 	ID = args[0]
 	IDval = args[1]
-
-	// Write the state to the ledger
 	err = stub.PutState(ID, []byte(IDval))
 	if err != nil {
 		return nil, err
@@ -65,7 +61,11 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	return nil, errors.New("Received unknown function invocation")
 }
 
-//add a new record
+// ============================================================================================================================
+// Add function is used for add an new medical record
+// 3 input
+// "medical record ID","medical record db address","medical record hash"
+// ============================================================================================================================
 func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if len(args) != 3 {
 		return nil, errors.New("Incorrect number of arguments. ")
@@ -90,6 +90,9 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 	return nil, nil
 }
 
+// ============================================================================================================================
+// Query function is the entry point for Queries
+// ============================================================================================================================
 func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
 	if function == "verify" { //deletes an account from its state
@@ -105,6 +108,28 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 }
 
+// ============================================================================================================================
+// Get function is used for getting the medical record details
+// 1 input
+// "medical record ID"
+// ============================================================================================================================
+func (t *SimpleChaincode) Get(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	recordID := args[0]
+	// Handle different functions
+	recordDetail, err := stub.GetState(recordID) //get the var from chaincode state
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + recordID + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	return recordDetail, nil
+}
+
+// ============================================================================================================================
+// VerifyRecordHash function is used for verifying the medical record in this smart contract
+// 2 input
+// "medical record ID","medical record hash"
+// ============================================================================================================================
 func (t *SimpleChaincode) VerifyRecordHash(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if len(args) != 2 {
 		return nil, errors.New("Incorrect number of arguments. ")
@@ -132,18 +157,6 @@ func (t *SimpleChaincode) VerifyRecordHash(stub shim.ChaincodeStubInterface, arg
 		return nil, errors.New("Failed to verify the record")
 	}
 
-}
-
-func (t *SimpleChaincode) Get(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	recordID := args[0]
-	// Handle different functions
-	recordDetail, err := stub.GetState(recordID) //get the var from chaincode state
-	if err != nil {
-		jsonResp := "{\"Error\":\"Failed to get state for " + recordID + "\"}"
-		return nil, errors.New(jsonResp)
-	}
-
-	return recordDetail, nil
 }
 
 func main() {
