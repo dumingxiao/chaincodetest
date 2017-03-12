@@ -10,8 +10,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	//"strconv"
-
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -20,7 +18,17 @@ type SimpleChaincode struct {
 
 type RecordDetail struct {
 	DbIP       string `json:"dbIP"`       //user who created the open trade order
-	RecordHash string `json:"recordHash"` //utc timestamp of creation
+	RecordHash string `json:"recordHash"` //
+}
+
+type RecordDiseaseIndexDetail struct {
+	RecordID string `json:"recordID"`
+	DbIP     string `json:"dbIP"` //user who created the open trade order
+
+}
+
+type RecordDiseaseIndex struct {
+	RecordDiseaseIndexDetails []RecordDiseaseIndexDetail `json:"recordDiseaseIndexDetails"` //user who created the open trade order
 }
 
 // ============================================================================================================================
@@ -67,9 +75,10 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 // "medical record ID","medical record db address","medical record hash"
 // ============================================================================================================================
 func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	if len(args) != 3 {
+	if len(args) != 4 {
 		return nil, errors.New("Incorrect number of arguments. ")
 	}
+	// write the record details into the world state and the chain
 	recordID := args[0]
 	var recordDetail RecordDetail
 	recordDetail.DbIP = args[1]
@@ -87,6 +96,20 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 		return nil, errors.New("Failed to add the record")
 	}
 
+	// write the disease index of the record details into the world state and the chain
+	disease := args[3]
+	var recordDiseaseIndexDetail RecordDiseaseIndexDetail
+	var recordDiseaseIndexDetails RecordDiseaseIndex
+	recordDiseaseIndexDetail.RecordID = args[0]
+	recordDiseaseIndexDetail.DbIP = args[1]
+	recordDiseaseIndexAsBytes, errs := stub.GetState(disease)
+	if errs != nil {
+		return nil, errors.New("Failed to get disease index details")
+	}
+	json.Unmarshal(recordDiseaseIndexAsBytes, &recordDiseaseIndexDetails)
+	recordDiseaseIndexDetails.RecordDiseaseIndexDetails = append(recordDiseaseIndexDetails.RecordDiseaseIndexDetails, recordDiseaseIndexDetail)
+	jsonAsBytes, _ := json.Marshal(recordDiseaseIndexDetails)
+	err = stub.PutState(disease, jsonAsBytes)
 	return nil, nil
 }
 
