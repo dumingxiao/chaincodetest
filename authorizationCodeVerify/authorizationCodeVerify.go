@@ -8,8 +8,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	//"strconv"
-
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -154,8 +152,6 @@ func (t *SimpleChaincode) P2VerifyQuery(stub shim.ChaincodeStubInterface, args [
 
 }
 
-// 医疗分析机构请求获取病人的病例数据，
-//发送 医疗分析机构编号 || 医院编号 || 医院授权码 || 病人编号 ||病人授权码
 // ============================================================================================================================
 // P2VerifyQuery function is used for verifying the hospital's authorization code and the patient's authorization code
 // 5 input
