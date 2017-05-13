@@ -71,7 +71,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 
 // ============================================================================================================================
 // Add function is used for add an new medical record
-// 3 input
+// 4 input
 // "medical record ID","medical record db address","medical record hash"
 // ============================================================================================================================
 func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
@@ -118,14 +118,12 @@ func (t *SimpleChaincode) Add(stub shim.ChaincodeStubInterface, args []string) (
 // ============================================================================================================================
 func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
-	if function == "verify" { //deletes an account from its state
-		if len(args) == 1 {
+	if function == "query" { //deletes an account from its state
 			return t.Get(stub, args)
-		} else if len(args) == 2 {
+		} else if function == "verify" {
 			return t.VerifyRecordHash(stub, args)
 
 		}
-	}
 
 	return nil, errors.New("failed to query")
 
