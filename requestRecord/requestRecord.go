@@ -12,8 +12,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	//"strconv"
-
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -68,7 +66,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 }
 
 // ============================================================================================================================
-// Add function is used for add an new request record
+// Add function is used for add an new request record of the hospital or the celeres
 // 6 input
 // "requestID","requester","hospitalID","hospital authorization code","patient","hpatient authorization code"
 // ============================================================================================================================
